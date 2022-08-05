@@ -77,13 +77,11 @@
             # Write permissions are borked
             chmod -R +w thermo_pw
             chmod -R +w external
-            ls -la external/mbd/
 
             # Patch for extension
             cd thermo_pw
             make join_qe
             cd ..
-            ls -lR
           '';
 
           preConfigure = ''
@@ -91,22 +89,26 @@
           '';
 
           nativeBuildInputs = [ gfortran ];
-
           buildInputs = requirements;
-
-          configureFlags = if useMpi then [ "LD=${mpi}/bin/mpif90" ] else [ "LD=${gfortran}/bin/gfortran" ];
-
+          configureFlags =
+            if
+              useMpi then
+              [ "LD=${mpi}/bin/mpif90" ]
+            else [ "LD=${gfortran}/bin/gfortran" ];
           makeFlags = [ "thermo_pw" ];
         };
       in
       {
         devShells.default = with pkgs;
-          pkgs.mkShell {
+          pkgs.mkShell rec {
             packages = requirements ++ [ quantum-espresso-mpi-thermo-pw gnuplot ];
 
             shellHook = ''
               # Create the temp directories required for usage.
               mkdir -p $PSEUDO_DIR $TMP_DIR
+
+              # Set a hostfile for local mpi
+              echo "localhost slots=25" > $TMP_QE/hostfile
 
               # Export Q-E check failure function
               check_failure () {
@@ -123,17 +125,19 @@
 
             # Q-E Variables
             PREFIX = "${quantum-espresso-mpi-thermo-pw.src}";
-            PSEUDO_DIR = "/tmp/q-e/pseudo";
-            TMP_DIR = "/tmp/q-e/tempdir";
             BIN_DIR = "${quantum-espresso-mpi-thermo-pw}/bin";
+            TMP_QE = "/tmp/q-e";
+            PSEUDO_DIR = "${TMP_QE}/pseudo";
+            TMP_DIR = "${TMP_QE}/tempdir";
 
             PARA_PREFIX = " ";
             PARA_POSTFIX = " -nk 1 -nd 1 -nb 1 -nt 1 ";
 
-            OMP_NUM_THREADS = 1;
-            NUM_PROCESSORS = 4;
-            PARA_IMAGE_POSTFIX = "-ni 2 $PARA_POSTFIX";
-            PARA_IMAGE_PREFIX = "mpirun -np $NUM_PROCESSORS --hostfile=";
+            OMP_NUM_THREADS = "1";
+            NUM_PROCESSORS = "4";
+            PARA_IMAGE_POSTFIX = "-ni 2 ${PARA_POSTFIX}";
+            PARA_IMAGE_PREFIX = "mpirun -np ${NUM_PROCESSORS} " +
+              "--hostfile ${TMP_QE}/hostfile";
 
             WGET = "curl -o";
             LC_ALL = "C";
