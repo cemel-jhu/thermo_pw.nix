@@ -2,7 +2,7 @@
   description = "expose as a flake";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-21.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/e105167e98817ba9fe079c6c3c544c6ef188e276";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
