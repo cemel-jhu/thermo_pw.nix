@@ -15,10 +15,10 @@
         };
         thermo-pw.dev = pkgs.fetchFromGitHub
           {
-            owner = "dalcorso";
+            owner = "cemel-jhu";
             repo = "thermo_pw";
-            rev = "1.7.1";
-            sha256 = "5ovjWkVviGd7STtmlO52iJxEwtFtO7iclq1p5tDWvts=";
+            rev = "master";
+            sha256 = "LeUaWVxCYTJpG7ZaX/MY3tbW6uyZf/rRCAaonxISu0I=";
           };
         fox-xml.dev = pkgs.fetchFromGitHub
           {
